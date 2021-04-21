@@ -1,0 +1,10 @@
+{
+  "serialconfig1": {
+    "baudRate" : 9600,
+    "defaultPort" : "COM3"
+  },
+  "serialconfig2": {
+    "baudRate" : 115200,
+    "defaultPort" : "/dev/ttyUSB0"
+  }
+}
