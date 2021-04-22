@@ -1,37 +1,91 @@
-import logo from './logo.svg';
-import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
-import {useEffect, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {dispatchEvent, receiveEvent} from './services/electronApi'
+import {Accordion, Button, Col, Container, Row} from 'react-bootstrap'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const App = () => {
-  const [serialInit, setSerialInit] = useState(null)
-  const [msg, setMsg] = useState("")
+  const [serialInit, setSerialInit] = useState({})
+  const [debuggerMessage, setDebuggerMessage] = useState([])
+  const divRef = useRef(null)
+
   useEffect(() => {
-    dispatchEvent("serial-init")
-    .then(msgSuccess => {
-      setSerialInit(true)
-      setMsg(msgSuccess)
-    })
-    .catch(msgError => {
-      setSerialInit(false)
-      setMsg(msgError)
-    })
     receiveEvent("data-received", data => {
-      console.log(data)
+      setDebuggerMessage(d => [...d, {datetime: new Date().toLocaleDateString('pt-BR', {hour: '2-digit', minute: '2-digit', second: '2-digit'}), msg: data }])
+      divRef.current?.scrollIntoView({ behavior: "smooth" })
+    })
+    receiveEvent("port-closed", () => {
+      console.log("Porta foi fechada. Você pode ter feito isso ou o dispositivo foi desconectado da comunicação serial. ")
     })
   }, [])
+
+  const openPort = () => {
+    dispatchEvent("serial-init")
+    .then(openSuccess => {
+      const {result, message} = openSuccess
+      setSerialInit({result, message})
+    })
+    .catch(openError => {
+      const {result, message} = openError
+      setSerialInit({result, message})
+    })
+    .catch(err => {
+      console.log(err)
+    })
+  }
+
+  const closePort = () => {
+    dispatchEvent("serial-close")
+    .then(closeSuccess => {
+      const {result, message} = closeSuccess
+      setSerialInit({result, message})
+    })
+    .catch(closeError => {
+      const {result, message} = closeError
+      setSerialInit({result, message})
+    })
+    .catch(err => {
+      console.log(err)
+    })  
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        {serialInit !== null && <p>Resultado da inicialização: {serialInit.toString()} </p>}
-        {msg !== "" && <p>{msg}</p>}
-      </header>
-    </div>
+    <Container fluid className="app">
+      <Container fluid className="fixed-bottom bg-info">
+        <Container fluid style={{paddingTop: '10px'}}>
+          <Accordion defaultActiveKey="0">
+            <Container fluid>
+              <Accordion.Toggle as={Button} eventKey="0" className="bg-primary w-100 text-left">
+                <span><FontAwesomeIcon icon="desktop" /> Monitor Serial</span>
+              </Accordion.Toggle>
+              <Accordion.Collapse eventKey="0" className="bg-light">
+                <div className="overflow-auto" style={{height: '100px'}}>
+                  {
+                    debuggerMessage.map((d, index) => (
+                      <p key={index}>{d.datetime} - <strong>{d.msg}</strong></p>
+                    ))
+                  }
+                  <div ref={divRef}></div>
+                </div>
+              </Accordion.Collapse>
+            </Container>
+          </Accordion>
+        </Container>
+        <Container fluid className="status-bar">
+          <Row style={{height: '100%'}}>
+            <Col sm={3} className="d-flex align-items-center text-center">
+              <span className="text-white" style={{padding: '10px'}}><FontAwesomeIcon icon="microchip" className="fa-2x" /></span>
+              <Button className="bg-success" onClick={openPort}><FontAwesomeIcon icon="play" /></Button>
+              <Button className="bg-danger" onClick={closePort}><FontAwesomeIcon icon="stop" /></Button>
+            </Col>
+            <Col sm={8} className="d-flex align-items-center">
+              <span className="text-white">Status: {serialInit?.message}</span>
+            </Col>
+          </Row>
+        </Container>
+      </Container>
+    </Container>
   );
 }
 

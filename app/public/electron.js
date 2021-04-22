@@ -1,13 +1,11 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow } = require('electron')
 const path = require('path')
 const url = require("url")
 const isDev = require('electron-is-dev');
+const contextMenu = require('electron-context-menu');
+const registerMainProcessEventEmitters = require("./events/registerMainProcessEventEmitters")
 require('./events/index.js')
 //require('./database/index.js');
-
-const {getData} = require("./serial")
-
-const contextMenu = require('electron-context-menu');
 
 contextMenu({
   labels: {
@@ -44,39 +42,35 @@ function createWindow() {
     width: 900,
     height: 680,
     minWidth: 500,
+    minHeight: 500,
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
       preload: path.join(__dirname, "config", "preload.js") // use a preload script
     },
     icon: './images/temvaga-256x256.png'
-  });
+  })
 
-
-  mainWindow.loadURL(isDev ? 'http://localhost:3000' : url.format({ pathname: path.join(__dirname, '/index.html'), protocol: 'file:', slashes: true }));
+  mainWindow.loadURL(isDev ? 'http://localhost:3000' : url.format({ pathname: path.join(__dirname, '/index.html'), protocol: 'file:', slashes: true }))
   if (isDev) {
     // Open the DevTools.
     //BrowserWindow.addDevToolsExtension('<location to your react chrome extension>');
-    mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools()
   }
-  mainWindow.on('closed', () => mainWindow = null);
+  registerMainProcessEventEmitters(mainWindow) //Obtém referência do programa e registra eventos que devem ser enviados ao renderer.
+  mainWindow.on('closed', () => mainWindow = null)
 }
 
-app.on('ready', createWindow);
+app.on('ready', createWindow)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    app.quit();
+    app.quit()
   }
 });
 
 app.on('activate', () => {
   if (mainWindow === null) {
-    createWindow();
+    createWindow()
   }
 });
-
-getData(data => {
-  console.log(data)
-  mainWindow.webContents.send("data-received", data)
-})

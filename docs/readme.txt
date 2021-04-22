@@ -16,3 +16,5 @@ npm uninstall serialport
 sudo npm install serialport --unsafe-perm --build-from-source
 
 https://serialport.io/docs/guide-installation/#sudo--root
+
+Para compilar o Serialport no Electron, siga as instruções em: https://serialport.io/docs/guide-installation#electron

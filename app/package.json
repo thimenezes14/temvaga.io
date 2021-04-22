@@ -49,7 +49,8 @@
     "preelectron-pack": "npm build",
     "electron-pack": "electron-builder -w",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "rebuild": "electron-rebuild -f -w serialport && electron-rebuild -f -w sqlite3"
   },
   "eslintConfig": {
     "extends": [
