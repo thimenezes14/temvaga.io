@@ -1,4 +1,4 @@
-const {baudRate, defaultPort} = require('./config.json').serialconfig1;
+const {baudRate, defaultPort} = require('./config.json').serialconfig3;
 const SerialPort = require('serialport')
 const Readline = require('@serialport/parser-readline')
 

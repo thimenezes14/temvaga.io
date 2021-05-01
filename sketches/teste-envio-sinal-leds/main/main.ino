@@ -25,7 +25,7 @@ void handleChangeState(Button buttons[]) {
 }
 
 String getAllStates(Button buttons[]) {
-  int states[2];
+  int states[arrayLength];
   String result = "";
   for(int i = 0; i < arrayLength; i++) {
     states[i] = buttons[i].getLedControlled().getState();

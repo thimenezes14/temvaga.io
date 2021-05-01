@@ -6,5 +6,9 @@
   "serialconfig2": {
     "baudRate" : 115200,
     "defaultPort" : "/dev/ttyUSB0"
+  },
+  "serialconfig3": {
+    "baudRate" : 115200,
+    "defaultPort" : "/dev/ttyUSB1"
   }
 }
