@@ -8,4 +8,5 @@ void loop() {
   delay(2500);
   digitalWrite(LED_BUILTIN, HIGH);
   delay(2500);
+  Serial.println("TESTE");
 }
