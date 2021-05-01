@@ -10,12 +10,15 @@ Button buttons[2] = {
   Button(BTN_1, 0, 1, Led(LED_1, "Cor 2"), "Botão 2")
 };
 
+int arrayLength = *(&buttons + 1) - buttons;
+
 void handleChangeState(Button buttons[]) {
-  for(int i = 0; i < 2; i++) {
+  for(int i = 0; i < arrayLength; i++) {
     Button btn = buttons[i];
     if(btn.getLastState() != btn.getState()) {
       if(btn.getState() == 1) {
         btn.getLedControlled().toggle();
+        Serial.println(getAllStates(buttons));
       }
     }
   }
@@ -24,7 +27,7 @@ void handleChangeState(Button buttons[]) {
 String getAllStates(Button buttons[]) {
   int states[2];
   String result = "";
-  for(int i = 0; i < 2; i++) {
+  for(int i = 0; i < arrayLength; i++) {
     states[i] = buttons[i].getLedControlled().getState();
     result += states[i];
     if(i < 1) {
@@ -35,15 +38,17 @@ String getAllStates(Button buttons[]) {
 }
 
 void readAndUpdateButtonStates() {
-  buttons[0].setState(digitalRead(buttons[0].getPin()));
-  buttons[1].setState(digitalRead(buttons[1].getPin()));
+  for(int i = 0; i < arrayLength; i++) {
+    buttons[i].setState(digitalRead(buttons[i].getPin()));
+  }
   handleChangeState(buttons);
-  buttons[0].updateLastState();
-  buttons[1].updateLastState();
+  for(int i = 0; i < arrayLength; i++) {
+    buttons[i].updateLastState();
+  }
   delay(50);
 }
 
-void getAndDispatchCommand(String cmd) {
+void dispatch(String cmd) {
   if(cmd == "GET_ALL") {
     Serial.println(getAllStates(buttons));
   }
@@ -56,7 +61,7 @@ void setup() {
 void loop() {
   readAndUpdateButtonStates();
   if(Serial.available() > 0) {
-    getAndDispatchCommand(Serial.readString());
+    dispatch(Serial.readString());
   }
   Serial.flush();
 }
