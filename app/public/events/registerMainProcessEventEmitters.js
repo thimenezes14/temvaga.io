@@ -11,7 +11,7 @@ const registerMainProcessEventEmitters = mainWindow => {
   })
   
   onOpen(port => {
-    console.log(`Porta ${port} aberta. `)
+    mainWindow.webContents.send("port-opened", port)
   })
 }
 

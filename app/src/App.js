@@ -15,16 +15,21 @@ const App = () => {
       setDebuggerMessage(d => [...d, {datetime: new Date().toLocaleDateString('pt-BR', {hour: '2-digit', minute: '2-digit', second: '2-digit'}), msg: data }])
       divRef.current?.scrollIntoView({ behavior: "smooth" })
     })
-    receiveEvent("port-closed", () => {
-      console.log("Porta foi fechada. Você pode ter feito isso ou o dispositivo foi desconectado da comunicação serial. ")
+    receiveEvent("port-opened", portNumber => {
+      console.log("Porta foi aberta em " + portNumber)
+    })
+    receiveEvent("port-closed", portNumber => {
+      console.log("Porta " + portNumber + " foi fechada. Você pode ter feito isso ou o dispositivo foi desconectado da comunicação serial. ")
     })
   }, [])
 
   const openPort = () => {
     dispatchEvent("serial-init")
     .then(openSuccess => {
-      const {result, message} = openSuccess
-      setSerialInit({result, message})
+      if(openSuccess !== null) {
+        const {result, message} = openSuccess
+        setSerialInit({result, message})
+      }
     })
     .catch(openError => {
       const {result, message} = openError
@@ -38,8 +43,10 @@ const App = () => {
   const closePort = () => {
     dispatchEvent("serial-close")
     .then(closeSuccess => {
-      const {result, message} = closeSuccess
-      setSerialInit({result, message})
+      if(closeSuccess !== null) {
+        const {result, message} = closeSuccess
+        setSerialInit({result, message})
+      }
     })
     .catch(closeError => {
       const {result, message} = closeError
