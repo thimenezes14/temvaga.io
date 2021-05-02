@@ -1,14 +1,18 @@
 const {ipcMain} = require("electron")
-const {serialPort} = require("../serial")
+const {serialPort, write} = require("../serial")
+
+const setReturnValue = (result, message) => {
+  return {result, message}
+}
 
 ipcMain.on("serial-init", async (event, arg) => {
   try {
     if(!serialPort.isOpen) {
       await serialPort.open(err => {
         if(err) {
-          event.returnValue = {result: false, message: `Não foi possível abrir porta ${serialPort.path} - ${err.message}`}
+          event.returnValue = setReturnValue(false, `Não foi possível abrir porta ${serialPort.path} - ${err.message}`)
         } else {
-          event.returnValue = {result: true, message: `Porta ${serialPort.path} foi aberta para comunicação.`}
+          event.returnValue = setReturnValue(true, `Porta ${serialPort.path} foi aberta para comunicação.`)
         } 
       })
     } else {
@@ -24,9 +28,9 @@ ipcMain.on("serial-close", async (event, arg) => {
     if(serialPort.isOpen) {
       await serialPort.close(err => {
         if(err) {
-          event.returnValue = {result: false, message: `Não foi possível fechar porta ${serialPort.path} - ${err.message}`}
+          event.returnValue = setReturnValue(false, `Não foi possível fechar porta ${serialPort.path} - ${err.message}`)
         } else {
-          event.returnValue = {result: true, message: `Porta ${serialPort.path} foi fechada com sucesso.`}
+          event.returnValue = setReturnValue(true, `Porta ${serialPort.path} foi fechada com sucesso.`)
         }
       })
     } else {
@@ -34,6 +38,16 @@ ipcMain.on("serial-close", async (event, arg) => {
     }
   } catch(err) {
     throw new Error(`Erro interno: ${err}`)
+  }
+})
+
+ipcMain.on("all", async (event, arg) => {
+  try {
+    write("ALL")
+    event.returnValue = true
+  } catch(err) {
+    console.log(`Erro: ${err}`)
+    event.returnValue = false
   }
 })
 
