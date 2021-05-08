@@ -12,6 +12,9 @@ Button buttons[2] = {
 
 int arrayLength = *(&buttons + 1) - buttons;
 
+String espConnected[] = {"ESP01", "ESP02"}; //Simula ESPs encontradas
+int espConnectedArrayLength = *(&espConnected + 1) - espConnected;
+
 void handleChangeState(Button buttons[]) {
   for(int i = 0; i < arrayLength; i++) {
     Button btn = buttons[i];
@@ -24,9 +27,20 @@ void handleChangeState(Button buttons[]) {
   }
 }
 
+String getAllDevices() { //Simula quantidade de devices conectados
+  String result = "ALL@";
+  for(int i = 0; i < espConnectedArrayLength; i++) {
+    result += espConnected[i];
+    if(i < 1) {
+      result +=",";
+    }
+  }
+  return result;
+}
+
 String getAllStates(Button buttons[]) {
   int states[2];
-  String result = "";
+  String result = espConnected[0] + "@";
   for(int i = 0; i < arrayLength; i++) {
     states[i] = buttons[i].getLedControlled().getState();
     result += states[i];
@@ -49,12 +63,20 @@ void readAndUpdateButtonStates() {
 }
 
 void dispatch(String cmd) {
-  if(cmd == "GET_ALL") {
+  Serial.println(cmd);
+  if(cmd == "ALL") {
+    Serial.println(getAllDevices());
+  }
+  if(cmd == "ESP01") {
     Serial.println(getAllStates(buttons));
+  }
+  if(cmd == "ESP02") {
+    Serial.println("ESP02@1,1");
   }
 }
 
 void setup() {
+  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(9600);
 }
 

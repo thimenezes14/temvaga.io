@@ -43,7 +43,7 @@ ipcMain.on("serial-close", async (event, arg) => {
 
 ipcMain.on("all", async (event, arg) => {
   try {
-    write("ALL")
+    await write("ALL", true)
     event.returnValue = true
   } catch(err) {
     console.log(`Erro: ${err}`)
