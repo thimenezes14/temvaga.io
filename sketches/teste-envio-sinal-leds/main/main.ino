@@ -12,7 +12,7 @@ Button buttons[2] = {
 
 int arrayLength = *(&buttons + 1) - buttons;
 
-String espConnected[] = {"ESP01", "ESP02"}; //Simula ESPs encontradas
+String espConnected[] = {"ESP01", "ESP02", "ESP03", "ESP04", "ESP05", "ESP06", "ESP07", "ESP08", "ESP09", "ESP10", "ESP11", "ESP12"}; //Simula ESPs encontradas
 int espConnectedArrayLength = *(&espConnected + 1) - espConnected;
 
 void handleChangeState(Button buttons[]) {
@@ -31,7 +31,7 @@ String getAllDevices() { //Simula quantidade de devices conectados
   String result = "ALL@";
   for(int i = 0; i < espConnectedArrayLength; i++) {
     result += espConnected[i];
-    if(i < 1) {
+    if(i < 1 || i < espConnectedArrayLength - 1) {
       result +=",";
     }
   }
@@ -69,9 +69,12 @@ void dispatch(String cmd) {
   }
   if(cmd == "ESP01") {
     Serial.println(getAllStates(buttons));
-  }
-  if(cmd == "ESP02") {
-    Serial.println("ESP02@1,1");
+  } else {
+    for(int i = 1; i < espConnectedArrayLength; i++) {
+      if(cmd == espConnected[i]) {
+        Serial.println(espConnected[i] + "@1,1");
+      }
+    }
   }
 }
 
