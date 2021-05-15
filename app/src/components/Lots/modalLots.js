@@ -3,23 +3,25 @@ import React from 'react';
 import { Button, Card, Col, Modal, Row } from 'react-bootstrap';
 
 export default function Lots(props) {
+  const {onHide, show, lotInfo} = props
   return (
     <Modal
-      {...props}
+      onHide={onHide}
+      show={show}
       size="lg"
       aria-labelledby="contained-modal-title-vcenter"
       centered
     >
       <Modal.Header closeButton>
         <Modal.Title id="contained-modal-title-vcenter">
-          {props.lotInfo?.name}
+          {lotInfo?.name}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body className="text-center">
         <h4><strong>Mapa de vagas</strong></h4>
         <Row className="d-flex align-items-center justify-content-center">
           {
-            props.lotInfo?.states?.map((state, i) => (
+            lotInfo?.states?.map((state, i) => (
               <Col sm={6} md={6} lg={3} xl={3} key={i}>
                 <Card style={{ padding: '3px', margin: '5px' }}>
                   <Card.Body>
@@ -35,7 +37,7 @@ export default function Lots(props) {
         </Row>
       </Modal.Body>
       <Modal.Footer>
-        <Button onClick={props.onHide}>Fechar</Button>
+        <Button onClick={onHide}>Fechar</Button>
       </Modal.Footer>
     </Modal>
   );

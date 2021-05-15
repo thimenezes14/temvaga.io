@@ -1,13 +1,13 @@
 const {getData, onClose, onOpen, lookUp, write} = require("../serial")
 
-const registerMainProcessEventEmitters = mainWindow => {
+const registerMainProcessEventEmitters = (mainWindow, app) => {
   getData(data => {
     mainWindow.webContents.send("data-received", data)
     if(RegExp(/^(ALL@)/).test(data)) {
       const devicesFound = data.replace(/^(ALL@)/, "").split(",")
       mainWindow.webContents.send("devices-found", devicesFound)
       console.log(devicesFound)
-      devicesFound.forEach((deviceName, index) => setTimeout(() => write(deviceName, false), index * 2000))
+      devicesFound.forEach((deviceName, index) => setTimeout(() => write(deviceName + "\0", false), index * 10))
     }
     if(RegExp(/^(ESP+\w{1,}@)/).test(data)) { 
       const deviceName = data.split("@")[0]
@@ -17,17 +17,13 @@ const registerMainProcessEventEmitters = mainWindow => {
     }
   })
   
-  onClose(port => {
-    mainWindow.webContents.send("port-closed", port)
-  })
-  
-  onOpen(port => {
-    mainWindow.webContents.send("port-opened", port)
-  })
+  onClose(port => mainWindow.webContents.send("port-closed", port))
+  onOpen(port => mainWindow.webContents.send("port-opened", port))
 
   lookUp()
     .then(portsAvailable => mainWindow.webContents.send("ports-available", portsAvailable.map(port => port.path)))
     .catch(() => mainWindow.webContents.send("ports-available", null))
+
 }
 
 module.exports = registerMainProcessEventEmitters

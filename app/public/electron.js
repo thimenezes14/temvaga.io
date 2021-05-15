@@ -5,7 +5,6 @@ const isDev = require('electron-is-dev');
 const contextMenu = require('electron-context-menu');
 const registerMainProcessEventEmitters = require("./events/registerMainProcessEventEmitters")
 require('./events/index.js')
-//require('./database/index.js');
 
 contextMenu({
   labels: {
@@ -41,8 +40,8 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 900,
     height: 680,
-    minWidth: 500,
-    minHeight: 500,
+    minWidth: 576,
+    minHeight: 384,
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: true,
@@ -57,7 +56,8 @@ function createWindow() {
     //BrowserWindow.addDevToolsExtension('<location to your react chrome extension>');
     mainWindow.webContents.openDevTools()
   }
-  registerMainProcessEventEmitters(mainWindow) //Obtém referência do programa e registra eventos que devem ser enviados ao renderer.
+  registerMainProcessEventEmitters(mainWindow, app) //Obtém referência do programa e registra eventos que devem ser enviados ao renderer.
+
   mainWindow.on('closed', () => mainWindow = null)
 }
 

@@ -1,2 +1,2 @@
-const {dispatchEvent, receiveEvent} = window.api
-export {dispatchEvent, receiveEvent}
+const {dispatchEvent, receiveEvent, relaunch} = window.api
+export {dispatchEvent, receiveEvent, relaunch}

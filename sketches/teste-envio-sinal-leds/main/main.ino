@@ -86,7 +86,7 @@ void setup() {
 void loop() {
   readAndUpdateButtonStates();
   if(Serial.available() > 0) {
-    dispatch(Serial.readString());
+    dispatch(Serial.readStringUntil('\0'));
   }
   Serial.flush();
 }

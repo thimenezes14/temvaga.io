@@ -1,15 +1,17 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from 'react'
-import {Container} from 'react-bootstrap'
 import Footer from './components/Footer';
+import Header from './components/Header';
 import Lots from './components/Lots';
+import SerialStateProvider from './contexts/SerialStateContext';
 
 const App = () => {
   return (
-    <Container fluid className="app">
+    <SerialStateProvider>
+      <Header />
       <Lots />
       <Footer />
-    </Container>
+    </SerialStateProvider>
   );
 }
 

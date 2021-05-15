@@ -1,54 +1,48 @@
-const {ipcMain} = require("electron")
-const {serialPort, write} = require("../serial")
+const { ipcMain, dialog } = require("electron")
+const fs = require('fs')
+const path = require("path")
+require("./serialEvents")
 
-const setReturnValue = (result, message) => {
-  return {result, message}
-}
-
-ipcMain.on("serial-init", async (event, arg) => {
-  try {
-    if(!serialPort.isOpen) {
-      await serialPort.open(err => {
-        if(err) {
-          event.returnValue = setReturnValue(false, `Não foi possível abrir porta ${serialPort.path} - ${err.message}`)
-        } else {
-          event.returnValue = setReturnValue(true, `Porta ${serialPort.path} foi aberta para comunicação.`)
-        } 
-      })
-    } else {
-      event.returnValue = null
+ipcMain.on("about", (event, arg) => {
+  dialog.showMessageBox(null,
+    {
+      type: "info",
+      title: "TemVaga.io",
+      message: "TemVaga.io - Sistema de Gerenciamento de Vagas de Estacionamento",
+      detail: "Projeto experimental desenvolvido para o curso IoT – Sistemas com Engenharia de Software (USP) - v0.1 - Thiago Menezes & Murilo Silva"
     }
-  } catch(err) {
-    throw new Error(`Erro interno: ${err}`)
-  } 
+  )
+  event.returnValue = null
 })
 
-ipcMain.on("serial-close", async (event, arg) => {
-  try {
-    if(serialPort.isOpen) {
-      await serialPort.close(err => {
-        if(err) {
-          event.returnValue = setReturnValue(false, `Não foi possível fechar porta ${serialPort.path} - ${err.message}`)
-        } else {
-          event.returnValue = setReturnValue(true, `Porta ${serialPort.path} foi fechada com sucesso.`)
-        }
-      })
-    } else {
-      event.returnValue = null
+ipcMain.on("get-config", (event, arg) => {
+  const defaultBaudRates = [110, 300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 38400, 57600, 115200, 128000, 256000]
+  fs.readFile(path.join(__dirname, '../serial/config.json'), 'utf8', (err, jsonString) => {
+    if (err) {
+      dialog.showMessageBox(null, {title: "Atenção!", type: "error", detail: `Não foi possível carregar configurações:  ${err}`})
+      event.returnValue = {result: false, data: err}
     }
-  } catch(err) {
-    throw new Error(`Erro interno: ${err}`)
-  }
+    try {
+      const loadedConfig = JSON.parse(jsonString)
+      event.returnValue = {result: true, data: {...loadedConfig, defaultBaudRates}}
+    } catch (err) {
+      dialog.showMessageBox(null, {title: "Atenção!", type: "error", detail: `Não foi possível carregar configurações:  ${err}`})
+      event.returnValue = {result: false, data: err}
+    }
+  })
 })
 
-ipcMain.on("all", async (event, arg) => {
-  try {
-    await write("ALL", true)
-    event.returnValue = true
-  } catch(err) {
-    console.log(`Erro: ${err}`)
-    event.returnValue = false
-  }
+ipcMain.on("save-config", (event, arg) => {
+  const {devicePath, baudRate} = arg
+  fs.writeFile(path.join(__dirname, '../serial/config.json'), JSON.stringify({baudRate, devicePath}, null, 2), err => {
+    if (err) {
+      dialog.showMessageBox(null, {title: "Atenção!", type: "error", detail: `Não foi possível salvar configurações:  ${err}`})
+      event.returnValue = {result: false, data: err}
+    } else {
+      dialog.showMessageBox(null, {title: "Sucesso!", type: "info", detail: `Configurações salvas com sucesso. `})
+      event.returnValue = {result: true, data: "Configurações salvas com sucesso. "}
+    }
+  })
 })
 
 module.exports = ipcMain
